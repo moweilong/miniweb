@@ -5,8 +5,16 @@
 
 package main
 
-import "fmt"
+import (
+	"os"
+
+	"github.com/moweilong/miniweb/internal/miniweb"
+	_ "go.uber.org/automaxprocs"
+)
 
 func main() {
-	fmt.Println("Hello MiniWeb!")
+	command := miniweb.NewMiniWebCommand()
+	if err := command.Execute(); err != nil {
+		os.Exit(1)
+	}
 }
