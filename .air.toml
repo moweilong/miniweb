@@ -4,7 +4,7 @@ tmp_dir = "_output/tmp"
 
 [build]
   args_bin = []
-  bin = "./_output/miniweb"
+  bin = "./_output/miniweb -c configs/miniweb.yaml"
   cmd = "go build -o ./_output/miniweb ./cmd/miniweb"
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
