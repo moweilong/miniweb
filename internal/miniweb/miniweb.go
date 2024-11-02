@@ -13,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/moweilong/miniweb/internal/pkg/log"
+	mw "github.com/moweilong/miniweb/internal/pkg/middleware"
 	"github.com/moweilong/miniweb/pkg/version/verflag"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -81,6 +82,10 @@ func run() error {
 	// 创建 Gin 引擎
 	g := gin.New()
 
+	mws := []gin.HandlerFunc{mw.RequestID()}
+
+	g.Use(mws...)
+
 	// 注册 404 Handler.
 	g.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"code": 10003, "message": "Page not found."})
@@ -88,6 +93,8 @@ func run() error {
 
 	// 注册 /healthz handler.
 	g.GET("/healthz", func(c *gin.Context) {
+		log.C(c).Infow("Healthz function called")
+
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
