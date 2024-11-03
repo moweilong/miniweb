@@ -61,3 +61,7 @@ tidy: # 自动添加/移除依赖包.
 .PHONY: clean
 clean: # 清理构建产物、临时文件等.
 	@-rm -vrf $(OUTPUT_DIR)
+
+.PHONY: install_tools
+install_tools: # 安装开发工具.
+	@go install github.com/Shelnutt2/db2struct/cmd/db2struct@latest
