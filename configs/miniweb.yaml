@@ -6,6 +6,7 @@
 # 通用配置
 gin-mode: debug               # Gin 开发模式, 可选值有：debug, release, test
 http-addr: :8080                  # HTTP 服务器监听地址
+jwt-secret: Rtg8BPKNEf2mB4mgvKONGPZZQSaJWNLijxR42qRgq0iBb5 # JWT 签发密钥
 
 # MySQL 数据库相关配置
 db:
@@ -20,8 +21,8 @@ db:
 
 # 日志配置
 log:
-  disable-caller: false
-  disable-stacktrace: false
-  level: debug
-  format: console
-  output-paths: [/tmp/miniweb.log, stdout]
+  disable-caller: false # 是否开启 caller，如果开启会在日志中显示调用日志所在的文件和行号
+  disable-stacktrace: false # 是否禁止在 panic 及以上级别打印堆栈信息
+  level: debug # 指定日志级别，可选值：debug, info, warn, error, dpanic, panic, fatal
+  format: console # 指定日志显示格式，可选值：console, json
+  output-paths: [/tmp/miniweb.log, stdout] # 指定日志输出位置，多个输出，用 `逗号 + 空格` 分开。stdout：标准输出，
