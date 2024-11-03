@@ -43,3 +43,8 @@ func NewStore(db *gorm.DB) *datastore {
 func (ds *datastore) Users() UserStore {
 	return newUsers(ds.db)
 }
+
+// DB 返回存储在 datastore 中的 *gorm.DB.
+func (ds *datastore) DB() *gorm.DB {
+	return ds.db
+}

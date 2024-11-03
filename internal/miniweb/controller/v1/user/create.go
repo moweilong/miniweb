@@ -14,6 +14,8 @@ import (
 	v1 "github.com/moweilong/miniweb/pkg/api/miniweb/v1"
 )
 
+const defaultMethods = "(GET)|(POST)|(PUT)|(DELETE)"
+
 // Create 创建一个新的用户.
 func (c *UserController) Create(ctx *gin.Context) {
 	log.C(ctx).Infow("Create user function called")
@@ -34,6 +36,11 @@ func (c *UserController) Create(ctx *gin.Context) {
 	if err := c.b.Users().Create(ctx, &r); err != nil {
 		core.WriteResponse(ctx, err, nil)
 
+		return
+	}
+
+	if _, err := c.a.AddNamedPolicy("p", r.Username, "/v1/users/"+r.Username, defaultMethods); err != nil {
+		core.WriteResponse(ctx, err, nil)
 		return
 	}
 

@@ -7,6 +7,7 @@ package user
 
 import (
 	"context"
+	"errors"
 	"regexp"
 
 	"github.com/jinzhu/copier"
@@ -16,6 +17,7 @@ import (
 	v1 "github.com/moweilong/miniweb/pkg/api/miniweb/v1"
 	"github.com/moweilong/miniweb/pkg/auth"
 	"github.com/moweilong/miniweb/pkg/token"
+	"gorm.io/gorm"
 )
 
 // UserBiz 定义了 user 模块在 biz 层所实现的方法.
@@ -23,6 +25,7 @@ type UserBiz interface {
 	Create(ctx context.Context, r *v1.CreateUserRequest) error
 	ChangePassword(ctx context.Context, username string, r *v1.ChangePasswordRequest) error
 	Login(ctx context.Context, r *v1.LoginRequest) (*v1.LoginResponse, error)
+	Get(ctx context.Context, username string) (*v1.GetUserResponse, error)
 }
 
 // UserBiz 接口的实现.
@@ -93,4 +96,24 @@ func (b *userBiz) Login(ctx context.Context, r *v1.LoginRequest) (*v1.LoginRespo
 	}
 
 	return &v1.LoginResponse{Token: t}, nil
+}
+
+// Get 是 UserBiz 接口中 `Get` 方法的实现.
+func (b *userBiz) Get(ctx context.Context, username string) (*v1.GetUserResponse, error) {
+	user, err := b.ds.Users().Get(ctx, username)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errno.ErrUserNotFound
+		}
+
+		return nil, err
+	}
+
+	var resp v1.GetUserResponse
+	_ = copier.Copy(&resp, user)
+
+	resp.CreatedAt = user.CreatedAt.Format("2006-01-02 15:04:05")
+	resp.UpdatedAt = user.UpdatedAt.Format("2006-01-02 15:04:05")
+
+	return &resp, nil
 }

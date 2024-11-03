@@ -13,9 +13,10 @@ import (
 	"github.com/moweilong/miniweb/internal/pkg/errno"
 	"github.com/moweilong/miniweb/internal/pkg/log"
 	mw "github.com/moweilong/miniweb/internal/pkg/middleware"
+	"github.com/moweilong/miniweb/pkg/auth"
 )
 
-// installRouters 安装 miniblog 接口路由.
+// installRouters 安装 miniweb 接口路由.
 func installRouters(g *gin.Engine) error {
 	// 注册 404 Handler.
 	g.NoRoute(func(c *gin.Context) {
@@ -29,7 +30,12 @@ func installRouters(g *gin.Engine) error {
 		core.WriteResponse(c, nil, map[string]string{"status": "ok"})
 	})
 
-	uc := user.New(store.S)
+	authz, err := auth.NewAuthz(store.S.DB())
+	if err != nil {
+		return err
+	}
+
+	uc := user.New(store.S, authz)
 
 	g.POST("/login", uc.Login)
 
@@ -39,9 +45,10 @@ func installRouters(g *gin.Engine) error {
 		// 创建 users 路由分组
 		userv1 := v1.Group("/users")
 		{
-			userv1.POST("", uc.Create)
-			userv1.PUT(":name/change-password", uc.ChangePassword)
-			userv1.Use(mw.Authn())
+			userv1.POST("", uc.Create)                             // 无需认证和授权
+			userv1.PUT(":name/change-password", uc.ChangePassword) // 已经有认证，无需授权
+			userv1.Use(mw.Authn(), mw.Authz(authz))                // 后面的接口需要认证和授权
+			userv1.GET(":name", uc.Get)                            // 获取用户详情
 		}
 	}
 
